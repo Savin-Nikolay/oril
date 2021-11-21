@@ -1,4 +1,4 @@
-package com.example.oril.DTO;
+package com.example.oril.dto;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.example.oril.DTO;
+package com.example.oril.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,16 +7,12 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PriceDTO {
-
-    private BigDecimal lprice;
-
-    private String curr1;
-
-    private String curr2;
+public class CurrencyPriceDTO {
+    private BigDecimal price;
+    private String firstCurrencyCode;
+    private String secondCurrencyCode;
 }

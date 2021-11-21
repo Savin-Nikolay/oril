@@ -1,4 +1,4 @@
-package com.example.oril.web;
+package com.example.oril.config;
 
 
 import org.springframework.context.annotation.Bean;
@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Configuration
-public class Config {
+public class RestConfig {
 
     @Bean
     public RestTemplate restTemplate() {

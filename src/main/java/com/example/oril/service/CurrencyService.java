@@ -1,7 +1,7 @@
 package com.example.oril.service;
 
-import com.example.oril.DTO.PriceDTO;
-import com.example.oril.controllers.exceptions.CustomException;
+import com.example.oril.dto.CurrencyPriceDTO;
+import com.example.oril.exception.BadRequestException;
 import com.example.oril.domain.CurrencyPrice;
 import com.example.oril.mapper.CurrencyMapper;
 import com.example.oril.repository.CurrencyRepository;
@@ -10,52 +10,48 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
-public class CurrencyService implements CurrencyServiceInterface {
+public class CurrencyService {
 
     private final CurrencyRepository currencyRepository;
     private final CurrencyMapper currencyMapper;
 
-    @Override
-    public void save(PriceDTO priceDTO) {
-        currencyRepository.save(currencyMapper.PriceDtoToCurrencyPrice(priceDTO));
+
+    public void saveAll(Stream<CurrencyPriceDTO> priceDTOStream) {
+        List<CurrencyPrice> currencyPrices = new ArrayList<>();
+        priceDTOStream.forEach(priceDTO -> {
+            currencyPrices.add(currencyMapper.priceDtoToCurrencyPrice(priceDTO));
+        });
+        currencyRepository.saveAll(currencyPrices);
     }
 
-    @Override
-    public String getMinPriceByName(String name) {
+    public BigDecimal getMinPriceByName(String name) {
         CurrencyPrice firstByNameOrderByPriceAsc = currencyRepository.findFirstByNameOrderByPriceAsc(name);
         if (firstByNameOrderByPriceAsc == null) {
-            throw new CustomException("Currency name is invalid or DB is empty");
+            throw new BadRequestException("Currency name is invalid or DB is empty");
         }
-        return firstByNameOrderByPriceAsc.getPrice().toString();
+        return firstByNameOrderByPriceAsc.getPrice();
     }
 
-    @Override
-    public String getMaxPriceByName(String name) {
+    public BigDecimal getMaxPriceByName(String name) {
         CurrencyPrice firstByNameOrderByPriceDesc = currencyRepository.findFirstByNameOrderByPriceDesc(name);
-
         if (firstByNameOrderByPriceDesc == null) {
-            throw new CustomException("Currency name is invalid or DB is empty");
+            throw new BadRequestException("Currency name is invalid or DB is empty");
         }
-        return firstByNameOrderByPriceDesc.getPrice().toString();
+        return firstByNameOrderByPriceDesc.getPrice();
     }
 
-    @Override
-    public Map<String, Object> findAllByNameOnPageable(String name, Pageable pageable) {
-        Map<String, Object> result = new HashMap<>();
+    public Page<CurrencyPrice> findAllByNameOnPageable(String name, Pageable pageable) {
         Page<CurrencyPrice> page = currencyRepository.findAllByName(name, pageable);
         if (page == null) {
-            throw new CustomException("Currency name is invalid or DB is empty");
+            throw new BadRequestException("Currency name is invalid or DB is empty");
         }
-        result.put("Currencies", page.getContent());
-        result.put("CurrentPage", page.getNumber());
-        result.put("totalItems:", page.getTotalElements());
-        result.put("Pages:", page.getTotalPages());
-
-        return result;
+        return page;
     }
 }

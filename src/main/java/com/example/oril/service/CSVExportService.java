@@ -1,8 +1,8 @@
 package com.example.oril.service;
 
 
-import com.example.oril.DTO.MinMaxPriceDTO;
-import com.example.oril.controllers.exceptions.CustomException;
+import com.example.oril.dto.MinMaxPriceDTO;
+import com.example.oril.exception.BadRequestException;
 import com.example.oril.repository.CurrencyRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import java.io.Writer;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class CSVExportService implements CSVExportServiceInterface {
+public class CSVExportService {
 
     private final CurrencyRepository currencyRepository;
 
@@ -28,8 +28,7 @@ public class CSVExportService implements CSVExportServiceInterface {
                 .maxPrice(currencyRepository.findFirstByNameOrderByPriceAsc(name).getPrice())
                 .build();
     }
-
-    @Override
+    // TODO: вынести коды валют в Enum и пройти по валютам циклом
     public void writeMaxAndMinPriceToCSV(Writer writer) {
         MinMaxPriceDTO btc = creatFromRepository("BTC");
         MinMaxPriceDTO eth = creatFromRepository("ETH");
@@ -42,7 +41,8 @@ public class CSVExportService implements CSVExportServiceInterface {
 
         } catch (IOException e) {
             log.error("CSVExportServiceImpl: Error while writing csv");
-            throw new CustomException("SVExportServiceImpl: Error while writing csv");
+            //TODO: вернуть подходящий код ответа
+            throw new BadRequestException("SVExportServiceImpl: Error while writing csv");
         }
     }
 }
